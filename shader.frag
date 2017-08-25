@@ -1,35 +1,36 @@
 precision mediump float;
 
 varying vec2 vUv;
-varying vec3 vEyeDirection, vPos;
+varying vec3 vEyeDirection;
 
 uniform vec4 color;
 uniform sampler2D tex;
 
-#define STEPS 256
-#define MAX_DEPTH 1.0
+#define STEPS 256.0
+#define MAX_DEPTH 0.6
 
-vec3 march(vec3 p, vec3 dir)
+vec2 vUv2;
+
+vec3 march(vec3 dir)
 {
     float d = 0.;
-    float t = 0.02;
+    float t = 0.002;
     vec2 coord;
 
-    for (int i = 0; i < STEPS; i++)
+    for (float i = 0.; i < STEPS; i++)
     {
-        vec3 pos = p + dir * t;
-        coord = vUv + pos.xy;
-        vec4 col = texture2D(tex, coord);
-        d = abs(pos.z);
+        vec3 uv2 = vec3(vUv2, 0) + dir * t * i;
+        
+        uv2.y = 1. - uv2.y;
+        vec4 col = texture2D(tex, uv2.xy);
+        
+        d = i / STEPS;
 
-        if (dot(col.xyz, col.xyz) > 0.5 || d >= MAX_DEPTH)
+        if (col.r > 0.5 || d >= MAX_DEPTH)
         {
             break;
         }
-        else
-        {
-            t += 0.02;
-        }
+        
     }
 
     return vec3(coord, d);
@@ -37,21 +38,24 @@ vec3 march(vec3 p, vec3 dir)
 
 void main ()
 {
+    vUv2 = vec2(vUv.x, 1. - vUv.y);
     vec3 texCol = texture2D(tex, vUv).xyz;
 
-    vec3 col = vec3(vEyeDirection);
+    vec3 col;
+    float a;
 
-    if (dot(texCol, texCol) >= .5)
+    if (texCol.r >= .5)
     {
         col = vec3(1,0,0);
+        a = 0.;
     }
     else
     {
-        vec3 d = march(vPos, vEyeDirection);
+        vec3 d = march(vEyeDirection);
 
-        //col = vec3(0,1,0) * (1. - d / MAX_DEPTH);
-        col = vec3(d.z / MAX_DEPTH);
+        col = vec3(0,1,0) * (1. - d.z / MAX_DEPTH);
+        a = 1.;
     }
 
-    gl_FragColor = vec4(col, 1);
+    gl_FragColor = vec4(col, a);
 }

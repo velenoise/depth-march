@@ -1,7 +1,9 @@
 const regl = require('regl')();
 const glslify = require('glslify');
 const camera = require('regl-camera')(regl, {
-    center: [0, 0, 0]
+    center: [0, 0, 0],
+    distance: 2.5,
+    theta: Math.PI * .5
 })
 
 const drawTriangle  = regl({
@@ -52,7 +54,7 @@ require('resl')({
         regl.frame(({ time }) => {
             camera((state) => {
                 regl.clear({
-                    color: [0, 0, 0, 1],
+                    color: [0, 0, 0, 0],
                     depth: 1
                 });
             
