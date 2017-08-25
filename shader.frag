@@ -53,7 +53,7 @@ void main ()
     {
         vec3 d = march(vEyeDirection);
 
-        col = vec3(0,1,0) * (1. - d.z / MAX_DEPTH);
+        col = vec3(0.13,0.82,0.92) * (1. - d.z / MAX_DEPTH);
         a = 1.;
     }
 
